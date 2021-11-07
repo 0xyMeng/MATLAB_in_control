@@ -21,13 +21,13 @@
  
 % step4：求出交接频率对应的幅度，并返回
  
-function[wpos,ypos]=bd_asymp(G,w)
+function[wpos,ypos] = bd_asymp(G,w)
  
-G1=zpk(G);%将系统转换为Zero Pole Gain形式
+G1 = zpk(G); %将系统转换为Zero Pole Gain形式
  
-wpos=[];
+wpos = [];
  
-pos1=[];
+pos1 = [];
  
 %如果该func只有传递函数一个输入量，则调用freqint2函数自动调节频率范围
  
@@ -35,41 +35,32 @@ pos1=[];
  
 %nargin：确定函数的输入
  
-if nargin==1,w=freqint2(G);
- 
+if nargin == 1,
+    w=freqint2(G);
 end
  
-zer=G1.z{1}; pol=G1.p{1};gain=G1.k;
+zer = G1.z{1}; 
+pol = G1.p{1};
+gain = G1.k;
  
 for i=1:length(zer)  %依次判断系统的零点
- 
     if isreal(zer(i)) %确定一阶微分环节的交接频率，
- 
+        wpos = [wpos,abs(zer(i))];
+        pos1 = [pos1,20];%每有一个一阶微分环节，渐近线斜率+20
+    else if imag(zer(i))>0 %确定二阶微分环节的交接频率
         wpos=[wpos,abs(zer(i))];
- 
-        pos1=[pos1,20];%每有一个一阶微分环节，渐近线斜率+20
- 
-    else
- 
-        if imag(zer(i))>0 %确定二阶微分环节的交接频率
- 
-            wpos=[wpos,abs(zer(i))];
- 
-            pos1=[pos1,40];%每有一个二阶微分环节，渐进线斜率+40
- 
+        pos1=[pos1,40];%每有一个二阶微分环节，渐进线斜率+40
         end
- 
     end
- 
 end
  
-for i=1:length(pol) %依次判断系统的极点
+for i = 1:length(pol) %依次判断系统的极点
  
     if isreal(pol(i))%确定惯性环节和积分环节的交接频率
  
-    wpos=[wpos,abs(pol(i))];
+        wpos=[wpos,abs(pol(i))];
  
-    pos1=[pos1,-20];%每有一个惯性环节或者积分环节，渐近线斜率-20
+        pos1=[pos1,-20];%每有一个惯性环节或者积分环节，渐近线斜率-20
  
     else
  
